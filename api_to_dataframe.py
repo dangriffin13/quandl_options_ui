@@ -25,7 +25,7 @@ quandl_api_key = '&api_key=pWjXmxamqHYAMueDfPUE'
 
 def quandl_api_wrapper(database_code, dataset_code): #CME, CLH2018
     quote_url = f'https://www.quandl.com/api/v3/datasets/{database_code}/{dataset_code}.json?'
-
+ 
     response = requests.get(quote_url + quandl_api_key)
     return response.json()
 
@@ -49,3 +49,8 @@ def url_test(database_code, dataset_code, start_date):
             f'{database_code}/{dataset_code}.json?start_date={start_date}'
 
     return quote_url
+
+def quandl_to_df(dat):
+    dat = dat['dataset']
+    df = pd.DataFrame(dat['data'])
+    df.columns = dat['column_names']
