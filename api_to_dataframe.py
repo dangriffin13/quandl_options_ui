@@ -23,6 +23,10 @@ quandl_api_key = '&api_key=pWjXmxamqHYAMueDfPUE'
 # df.columns = dat['column_names']
 # #df.sort_values(by='Date')
 
+def concatenate_api_key(url, api_key):
+    return url + quandl_api_key
+    
+
 def quandl_api_wrapper(database_code, dataset_code): #CME, CLH2018
     quote_url = f'https://www.quandl.com/api/v3/datasets/{database_code}/{dataset_code}.json?'
  
@@ -39,8 +43,7 @@ def quandl_api_start_date(database_code, dataset_code, start_date): #CME, CLH201
     murl = f'https://www.quandl.com/api/v3/datasets/CME/CLH2018.json?start_date=2018-01-04&api_key=pWjXmxamqHYAMueDfPUE'
     print(response)
     print(murl)
-    print(response==murl)
-
+    print(murl == (quote_url + quandl_api_key))
     return response.json()
 
 
@@ -54,3 +57,10 @@ def quandl_to_df(dat):
     dat = dat['dataset']
     df = pd.DataFrame(dat['data'])
     df.columns = dat['column_names']
+    df.sort_values(by='Date')
+    return df
+
+
+if __name__ == '__main__':
+    print('Functions:')
+    print('quandl_api_start_date', 'quandl_to_df')
