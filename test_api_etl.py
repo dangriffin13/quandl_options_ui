@@ -8,11 +8,11 @@ call_url = 'https://www.quandl.com/api/v3/datasets/CME/CLH2018.json?start_date=2
 class QuandlAPITest(unittest.Testcase):
 
     def setUp(self):
-        self.response = requests.get(call_url)
+        self.data = requests.get(call_url)
     
 
     def test_api_connection:
-        self.assertTrue(self.response)
+        self.assertTrue(self.data)
 
 
     def test_df_columns:
@@ -20,5 +20,5 @@ class QuandlAPITest(unittest.Testcase):
 
 
     def test_date_sorting:
-        df = quandl_to_df(self.response)
+        df = quandl_to_df(self.data)
         self.assertEqual(df.iloc[31]['Date'], '2018-01-04')
