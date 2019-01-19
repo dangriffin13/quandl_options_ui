@@ -5,7 +5,7 @@ from api_to_dataframe import quandl_api_wrapper
 
 data_call_url = 'https://www.quandl.com/api/v3/datasets/CME/CLH2018.json?start_date=2018-01-04&api_key=pWjXmxamqHYAMueDfPUE'
 
-
+db_call_url = 'https://www.quandl.com/api/v3/databases/CHRIS.json?api_key=pWjXmxamqHYAMueDfPUE'
 
 class QuandlAPITest(unittest.Testcase):
 
