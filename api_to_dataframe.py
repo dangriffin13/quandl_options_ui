@@ -25,16 +25,19 @@ api_key_only = 'pWjXmxamqHYAMueDfPUE'
 # df.columns = dat['column_names']
 # #df.sort_values(by='Date')
 
+def concatenate_api_key(url):
+    return url + quandl_api_key
+
+
 def quandl_database_code_metadata_call(database_code, return_format='json'):
     quote_url = f'https://www.quandl.com/api/v3/databases/{database_code}.{return_format}?api_key='
     call_url = concatenate_api_key(quote_url + api_key_only)
 
     response = requests.get(call_url)
+    print('Name: ', response['database']['name'])
+    print('Description: ', response['database']['description'])
     return response.json()
 
-
-def concatenate_api_key(url):
-    return url + quandl_api_key
 
 
 def quandl_api_wrapper(database_code, dataset_code): #CME, CLH2018  #CHRIS, ICE_T1
@@ -75,3 +78,5 @@ def sort_df_by_date(df):
 if __name__ == '__main__':
     print('Functions:')
     print('quandl_api_start_date', 'quandl_to_df')
+    dat = quandl_api_start_date('CHRIS','ICE_T1','2019-01-02')
+    df = quandl_to_df(dat)
