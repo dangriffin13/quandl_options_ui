@@ -9,24 +9,11 @@ quandl_api_key = '&api_key=pWjXmxamqHYAMueDfPUE'
 
 api_key_only = 'pWjXmxamqHYAMueDfPUE'
 
-#manual url - start date is throwing an error
-# murl = f'https://www.quandl.com/api/v3/datasets/CME/CLH2018.json?start_date=2018-01-04&api_key=pWjXmxamqHYAMueDfPUE'
 
-# r = requests.get(murl)
-
-# print('request done')
-
-# dat = r.json()['dataset']
-# arr = np.array(dat['data'])
-
-# print('arr created')
-
-# df = pd.DataFrame(arr)
-# df.columns = dat['column_names']
-# #df.sort_values(by='Date')
 
 def concatenate_api_key(url):
     return url + quandl_api_key
+    #return url + '&api_key=' + quandl_api_key  #untested refactor
 
 
 def quandl_database_code_metadata_call(database_code, return_format='json'):
@@ -52,11 +39,7 @@ def quandl_api_start_date(database_code, dataset_code, start_date): #CME, CLH201
     quote_url = f'https://www.quandl.com/api/v3/datasets/{database_code}/{dataset_code}.json?start_date={start_date}'
 
     response = requests.get(quote_url + quandl_api_key)
-
-    murl = f'https://www.quandl.com/api/v3/datasets/CME/CLH2018.json?start_date=2018-01-04&api_key=pWjXmxamqHYAMueDfPUE'
     print(response)
-    print(murl)
-    print(murl == (quote_url + quandl_api_key))
     return response.json()
 
 
