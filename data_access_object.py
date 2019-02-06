@@ -1,11 +1,16 @@
 import psycopg2
 
-conn = pscyopg2.connect(user='danielgriffin', password='', 
-                        database='quandl_ui',host='localhost')
+conn = psycopg2.connect(user='danielgriffin', password='', 
+                        database='quandl_ui', host='localhost')
+
+if conn.closed == 0:
+    print('Connection successful')
+else:
+    print('Connection unsuccessful')
 
 
-create_dataset_master_table():
-    sql = """CREATE TABLE public.dataset_master
+def create_dataset_master_table():
+    sql = '''CREATE TABLE public.dataset_master
         (
             id integer,
             database_name text COLLATE pg_catalog."default",
@@ -14,8 +19,32 @@ create_dataset_master_table():
             dataset_code text COLLATE pg_catalog."default",
             publisher_name text COLLATE pg_catalog."default",
             publisher_id text COLLATE pg_catalog."default"
-        )"""
+        )'''
 
+    with conn.cursor() as cursor:
+        cursor.execute(sql)
+    connection.commit()
+    connection.close()
+
+
+def create_chris_dataset():
+    sql = '''CREATE TABLE chris
+            (
+            id integer,
+            dataset_master_id integer foreign key,
+            "date" date,
+            open numeric,
+            high numeric,
+            low numeric,
+            last numeric,
+            volume integer,
+            open_interest integer
+            )'''
+
+    with conn.cursor() as cursor:
+        cursor.execute(sql)
+    connection.commit()
+    connection.close()
 
 
 class DAO:
@@ -38,12 +67,12 @@ need specialized tables to handle each one, and we need to identify ahead of tim
 where to put the incoming data
 '''
 
-check_dataset_master_for_dataset(data):
+def check_dataset_master_for_dataset(data):
     sql = '''SELECT dataset_code
             FROM dataset_master 
             WHERE dataset_code = ?;'''
     with conn.cursor() as cursor:
-        cursor.execute(sql, data.dataset_code). #this is sqlite syntax; needs review
+        cursor.execute(sql, data.dataset_code) #this is sqlite syntax, needs review
 
     if sql_output == data.dataset_code:
         return True
@@ -51,7 +80,7 @@ check_dataset_master_for_dataset(data):
         return False
 
 
-check_dataset_master_for_database(data):
+def check_dataset_master_for_database(data):
     sql = """SELECT data.database_code FROM dataset_master;"""
 
     if sql_output == data.database_code:
@@ -60,7 +89,7 @@ check_dataset_master_for_database(data):
         return False
 
 
-insert_security_dataset(data):
+def insert_security_dataset(data):
     sql = """INSERT INTO security_time_series
         (
         id integer
