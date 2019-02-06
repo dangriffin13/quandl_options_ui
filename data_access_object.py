@@ -1,10 +1,6 @@
 
 
 
-class DAO:
-    pass
-
-
 create_dataset_master_table():
     sql = """CREATE TABLE public.dataset_master
         (
@@ -19,11 +15,39 @@ create_dataset_master_table():
 
 
 
+class DAO:
+    pass
+
+
+
+
+
+
+'''
+Quandl uses a structure where there's a 'database', which roughly means all of the 
+data sets for a given publisher; or if the publisher is large enough, then a 
+subcategory of all the publisher's datasets.
+
+Within the 'database', the individual time series/table/etc is called a dataset.
+
+Databases and datasets have markedly different columns/table structure, so we
+need specialized tables to handle each one, and we need to identify ahead of time
+where to put the incoming data
+'''
 
 check_dataset_master_for_dataset(data):
-    sql = """SELECT data.database_code, data.dataset_code FROM dataset_master;"""
+    sql = """SELECT data.dataset_code FROM dataset_master;"""
 
-    if sql_output == tuple(data.database_code, data.dataset_code):
+    if sql_output == data.dataset_code:
+        return True
+    else:
+        return False
+
+
+check_dataset_master_for_database(data):
+    sql = """SELECT data.database_code FROM dataset_master;"""
+
+    if sql_output == data.database_code:
         return True
     else:
         return False
@@ -40,3 +64,13 @@ insert_security_dataset(data):
 
 
 
+class QuandlDatabase:
+    pass
+
+
+class QuandlDataset:
+    pass
+
+
+class ResultSet:
+    pass
