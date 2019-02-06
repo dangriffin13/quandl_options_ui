@@ -1,4 +1,7 @@
+import psycopg2
 
+conn = pscyopg2.connect(user='danielgriffin', password='', 
+                        database='quandl_ui',host='localhost')
 
 
 create_dataset_master_table():
@@ -36,7 +39,11 @@ where to put the incoming data
 '''
 
 check_dataset_master_for_dataset(data):
-    sql = """SELECT data.dataset_code FROM dataset_master;"""
+    sql = '''SELECT dataset_code
+            FROM dataset_master 
+            WHERE dataset_code = ?;'''
+    with conn.cursor() as cursor:
+        cursor.execute(sql, data.dataset_code). #this is sqlite syntax; needs review
 
     if sql_output == data.dataset_code:
         return True
