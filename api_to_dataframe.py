@@ -21,8 +21,14 @@ def quandl_database_code_metadata_call(database_code, return_format='json'):
     call_url = concatenate_api_key(quote_url + api_key_only)
 
     response = requests.get(call_url)
-    print('Name: ', response['database']['name'])
-    print('Description: ', response['database']['description'])
+    return response.json()
+
+
+def quandl_dataset_code_metadata_call(database_code, dataset_code, return_format='json'):
+    quote_url = f'https://www.quandl.com/api/v3/datasets/{database_code}/{dataset_code}/metadata.{return_format}?api_key='
+    call_url = concatenate_api_key(quote_url + api_key_only)
+
+    response = requests.get(call_url)
     return response.json()
 
 
@@ -63,3 +69,4 @@ if __name__ == '__main__':
     print('quandl_api_start_date', 'quandl_to_df')
     dat = quandl_api_start_date('CHRIS','ICE_T1','2019-01-02')
     df = quandl_to_df(dat)
+    icet1_meta = quandl_dataset_code_metadata_call('CHRIS','ICE_T1')
