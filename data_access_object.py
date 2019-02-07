@@ -17,8 +17,7 @@ def create_dataset_master_table():
             database_code text COLLATE pg_catalog."default",
             dataset_name text COLLATE pg_catalog."default",
             dataset_code text COLLATE pg_catalog."default",
-            publisher_name text COLLATE pg_catalog."default",
-            publisher_id text COLLATE pg_catalog."default"
+            dataset_description text COLLATE pg_catalog."default"
         )'''
 
     with conn.cursor() as cursor:
@@ -31,7 +30,7 @@ def create_chris_dataset():
     sql = '''CREATE TABLE chris
             (
             id integer,
-            dataset_master_id integer foreign key,
+            dataset_master_id integer foreign key, #syntax error here
             "date" date,
             open numeric,
             high numeric,
@@ -105,7 +104,15 @@ class QuandlDatabase:
 
 
 class QuandlDataset:
-    pass
+    
+    def __init__(self, database_name, database_code, dataset_name, 
+                dataset_code, dataset_description, data=None):
+        self.database_name = database_name
+        self.database_code = database_code
+        self.dataset_name = dataset_name
+        self.dataset_code = dataset_code
+        self.dataset_description = dataset_description
+        self.data = data
 
 
 class ResultSet:
