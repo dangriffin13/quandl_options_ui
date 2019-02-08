@@ -12,7 +12,7 @@ else:
 def create_dataset_master_table():
     sql = '''CREATE TABLE public.dataset_master
         (
-            id integer,
+            id bigserial,
             database_name text COLLATE pg_catalog."default",
             database_code text COLLATE pg_catalog."default",
             dataset_name text COLLATE pg_catalog."default",
@@ -29,7 +29,7 @@ def create_dataset_master_table():
 def create_chris_dataset():
     sql = '''CREATE TABLE chris
             (
-            id integer,
+            id bigserial,
             dataset_master_id integer foreign key, #syntax error here
             "date" date,
             open numeric,
@@ -67,9 +67,10 @@ where to put the incoming data
 '''
 
 def check_dataset_master_for_dataset(data):
-    sql = '''SELECT dataset_code
+    sql = '''SELECT database_code, dataset_code
             FROM dataset_master 
-            WHERE dataset_code = ?;'''
+            WHERE database_code = ?
+                AND dataset_code = ?;'''
     with conn.cursor() as cursor:
         cursor.execute(sql, data.dataset_code) #this is sqlite syntax, needs review
 
@@ -117,3 +118,6 @@ class QuandlDataset:
 
 class ResultSet:
     pass
+
+
+seed = QuandlDataset('Seed', '1234', 'Test', '5678', 'Initializing Dataset Master Table')
