@@ -3,6 +3,7 @@ import json
 import requests
 import numpy as np
 import pandas as pd
+import data_access_object
 
 
 quandl_api_key = '&api_key=pWjXmxamqHYAMueDfPUE'
