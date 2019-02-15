@@ -12,7 +12,7 @@ else:
 def create_dataset_master_table():
     sql = '''CREATE TABLE public.dataset_master
         (
-            id bigserial,
+            id bigserial PRIMARY KEY,
             database_name text COLLATE pg_catalog."default",
             database_code text COLLATE pg_catalog."default",
             dataset_name text COLLATE pg_catalog."default",
@@ -22,15 +22,17 @@ def create_dataset_master_table():
 
     with conn.cursor() as cursor:
         cursor.execute(sql)
-    connection.commit()
-    connection.close()
+    conn.commit()
+    conn.close()
 
 
-def create_chris_dataset():
-    sql = '''CREATE TABLE chris
+def create_chris_dataset(): #need to add chris to dataset_master
+    add_chris_to_master_sql = '''INSERT INTO dataset_master'''
+
+    create_table_sql = '''CREATE TABLE chris
             (
-            id bigserial,
-            dataset_master_id integer foreign key, #syntax error here
+            id bigserial PRIMARY KEY,
+            dataset_master_id integer REFERENCES dataset_master (id),
             "date" date,
             open numeric,
             high numeric,
@@ -42,8 +44,10 @@ def create_chris_dataset():
 
     with conn.cursor() as cursor:
         cursor.execute(sql)
-    connection.commit()
-    connection.close()
+
+    print('cursor executed')
+    conn.commit()
+    conn.close()
 
 
 class DAO:
@@ -69,10 +73,10 @@ where to put the incoming data
 def check_dataset_master_for_dataset(data):
     sql = '''SELECT database_code, dataset_code
             FROM dataset_master 
-            WHERE database_code = ?
-                AND dataset_code = ?;'''
+            WHERE database_code = %s
+                AND dataset_code = %s;'''
     with conn.cursor() as cursor:
-        cursor.execute(sql, data.dataset_code) #this is sqlite syntax, needs review
+        cursor.execute(sql, data.database_code, data.dataset_code) #this is sqlite syntax, needs review
 
     if sql_output == data.dataset_code:
         return True
