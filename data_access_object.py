@@ -27,7 +27,10 @@ def create_dataset_master_table():
 
 
 def create_chris_dataset(): #need to add chris to dataset_master
-    add_chris_to_master_sql = '''INSERT INTO dataset_master'''
+    add_chris_to_master_sql = '''INSERT INTO dataset_master
+            (database_name, database_code, dataset_name, dataset_code, dataset_description) 
+            values (')
+            )'''
 
     create_table_sql = '''CREATE TABLE chris
             (
@@ -49,6 +52,16 @@ def create_chris_dataset(): #need to add chris to dataset_master
     conn.commit()
     conn.close()
 
+
+
+def disconnect_all_db_sessions(database): #need to insert database as variable in SQL
+    sql = '''SELECT pg_terminate_backend(pg_stat_activity.pid)
+                FROM pg_stat_activity
+                WHERE datname = ?()
+                AND pid <> pg_backend_pid();
+            '''
+
+            
 
 class DAO:
     pass
