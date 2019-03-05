@@ -13,11 +13,12 @@ def create_dataset_master_table():
     sql = '''CREATE TABLE public.dataset_master
         (
             id bigserial PRIMARY KEY,
-            database_name text COLLATE pg_catalog."default",
-            database_code text COLLATE pg_catalog."default",
-            dataset_name text COLLATE pg_catalog."default",
-            dataset_code text COLLATE pg_catalog."default",
-            dataset_description text COLLATE pg_catalog."default"
+            database_name text,
+            database_code text,
+            dataset_name text,
+            dataset_code text,
+            quandl_dataset_id text,
+            dataset_description text
         )'''
 
     with conn.cursor() as cursor:
@@ -27,26 +28,34 @@ def create_dataset_master_table():
 
 
 def create_chris_dataset(): #need to add chris to dataset_master
+    chris_metadata = ['Wiki Continuous Futures', 'CHRIS', 
+        'WTI Crude Futures\, Continuous Contract', 'ICE_T1', 
+        'Historical Futures Prices: WTI Crude Futures, Continuous Contract #1. Non-adjusted price based on spot-month continuous contract calculations. Raw data from ICE.'
+        ]
+
     add_chris_to_master_sql = '''INSERT INTO dataset_master
             (database_name, database_code, dataset_name, dataset_code, dataset_description) 
-            values (')
-            )'''
-
-    create_table_sql = '''CREATE TABLE chris
-            (
-            id bigserial PRIMARY KEY,
-            dataset_master_id integer REFERENCES dataset_master (id),
-            "date" date,
-            open numeric,
-            high numeric,
-            low numeric,
-            last numeric,
-            volume integer,
-            open_interest integer
+            values (%s, %s, %s, %s, %s);
             )'''
 
     with conn.cursor() as cursor:
-        cursor.execute(sql)
+        cursor.execute(add_chris_to_master_sql, (*chris_metadata))
+
+    create_chris_table_sql = '''CREATE TABLE chris
+            (
+                id bigserial PRIMARY KEY,
+                dataset_master_id integer REFERENCES dataset_master (id),
+                "date" date,
+                open numeric,
+                high numeric,
+                low numeric,
+                last numeric,
+                volume integer,
+                open_interest integer
+            )'''
+
+    with conn.cursor() as cursor:
+        cursor.execute(create_chris_table_sql)
 
     print('cursor executed')
     conn.commit()
@@ -61,7 +70,7 @@ def disconnect_all_db_sessions(database): #need to insert database as variable i
                 AND pid <> pg_backend_pid();
             '''
 
-            
+
 
 class DAO:
     pass
