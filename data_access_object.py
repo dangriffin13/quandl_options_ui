@@ -28,18 +28,18 @@ def create_dataset_master_table():
 
 
 def create_chris_dataset(): #need to add chris to dataset_master
-    chris_metadata = ['Wiki Continuous Futures', 'CHRIS', 
+    chris_metadata = ('Wiki Continuous Futures', 'CHRIS', 
         'WTI Crude Futures\, Continuous Contract', 'ICE_T1', 
         'Historical Futures Prices: WTI Crude Futures, Continuous Contract #1. Non-adjusted price based on spot-month continuous contract calculations. Raw data from ICE.'
-        ]
+        )
 
     add_chris_to_master_sql = '''INSERT INTO dataset_master
             (database_name, database_code, dataset_name, dataset_code, dataset_description) 
-            values (%s, %s, %s, %s, %s);
+            values (%s);
             )'''
 
     with conn.cursor() as cursor:
-        cursor.execute(add_chris_to_master_sql, (*chris_metadata))
+        cursor.execute(add_chris_to_master_sql, (chris_metadata))
 
     create_chris_table_sql = '''CREATE TABLE chris
             (
