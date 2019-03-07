@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import data_access_object
 
+api_url = 'https://www.quandl.com/api/v3/'
 
 quandl_api_key = '&api_key=pWjXmxamqHYAMueDfPUE'
 
@@ -18,7 +19,7 @@ def concatenate_api_key(url):
 
 
 def quandl_database_code_metadata_call(database_code, return_format='json'):
-    quote_url = f'https://www.quandl.com/api/v3/databases/{database_code}.{return_format}?api_key='
+    quote_url = api_url + f'databases/{database_code}.{return_format}?api_key='
     call_url = concatenate_api_key(quote_url + api_key_only)
 
     response = requests.get(call_url)
@@ -26,16 +27,17 @@ def quandl_database_code_metadata_call(database_code, return_format='json'):
 
 
 def quandl_dataset_code_metadata_call(database_code, dataset_code, return_format='json'):
-    quote_url = f'https://www.quandl.com/api/v3/datasets/{database_code}/{dataset_code}/metadata.{return_format}?api_key='
+    quote_url = api_url + f'datasets/{database_code}/{dataset_code}/metadata.{return_format}?api_key='
     call_url = concatenate_api_key(quote_url + api_key_only)
 
     response = requests.get(call_url)
+    http_status_check(response)
     return response.json()
 
 
 
 def quandl_api_wrapper(database_code, dataset_code): #CME, CLH2018  #CHRIS, ICE_T1
-    quote_url = f'https://www.quandl.com/api/v3/datasets/{database_code}/{dataset_code}.json?'
+    quote_url = api_url + f'datasets/{database_code}/{dataset_code}.json?'
  
     response = requests.get(quote_url + quandl_api_key)
     return response.json()
@@ -46,7 +48,7 @@ def quandl_api_start_date(database_code, dataset_code, start_date): #CME, CLH201
     quote_url = f'https://www.quandl.com/api/v3/datasets/{database_code}/{dataset_code}.json?start_date={start_date}'
 
     response = requests.get(quote_url + quandl_api_key)
-    print(response)
+    http_status_check(response)
     return response.json()
 
 
@@ -64,6 +66,11 @@ def quandl_to_df(dat):
 def sort_df_by_date(df):
     return df.sort_values(by='Date')    
 
+def http_status_check(response):
+    if response.status_code ==200:
+        print('Call successfull')
+    else:
+        print(response.status_code)
 
 if __name__ == '__main__':
     print('Functions:')
