@@ -9,6 +9,19 @@ else:
     print('Connection unsuccessful')
 
 
+def test_insert():
+    sql = '''INSERT INTO dataset_master
+            (database_name, database_code, dataset_name, dataset_code, quandl_dataset_id, dataset_description) 
+            values ('test', 'test', 'test', 'test', 123, 'test successful');
+            '''
+
+    with conn.cursor() as cursor:
+        cursor.execute(sql)
+
+    print('cursor executed')
+    conn.commit()
+    conn.close()
+
 def create_dataset_master_table():
     sql = '''CREATE TABLE public.dataset_master
         (
@@ -29,17 +42,17 @@ def create_dataset_master_table():
 
 def create_chris_dataset(): #need to add chris to dataset_master
     chris_metadata = ('Wiki Continuous Futures', 'CHRIS', 
-        'WTI Crude Futures\, Continuous Contract', 'ICE_T1', 
+        'WTI Crude Futures, Continuous Contract', 'ICE_T1', 11272034,
         'Historical Futures Prices: WTI Crude Futures, Continuous Contract #1. Non-adjusted price based on spot-month continuous contract calculations. Raw data from ICE.'
         )
 
     add_chris_to_master_sql = '''INSERT INTO dataset_master
-            (database_name, database_code, dataset_name, dataset_code, dataset_description) 
-            values (%s);
-            )'''
+            (database_name, database_code, dataset_name, dataset_code, quandl_dataset_id, dataset_description) 
+            values (%s, %s, %s, %s, %s, %s);
+            '''
 
     with conn.cursor() as cursor:
-        cursor.execute(add_chris_to_master_sql, (chris_metadata))
+        cursor.execute(add_chris_to_master_sql, chris_metadata)
 
     create_chris_table_sql = '''CREATE TABLE chris
             (
