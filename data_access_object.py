@@ -22,6 +22,7 @@ def test_insert():
     conn.commit()
     conn.close()
 
+
 def create_dataset_master_table():
     sql = '''CREATE TABLE public.dataset_master
         (
@@ -110,10 +111,13 @@ def check_dataset_master_for_dataset(data):
             FROM dataset_master 
             WHERE database_code = %s
                 AND dataset_code = %s;'''
-    with conn.cursor() as cursor:
-        cursor.execute(sql, data.database_code, data.dataset_code) #this is sqlite syntax, needs review
 
-    if sql_output == data.dataset_code:
+    tup = (data['database_code'],data['dataset_code'])
+
+    with conn.cursor() as cursor: #do i need to reopen connection?
+        cursor.execute(sql, tup) #this is sqlite syntax, needs review
+        result = cursor.fetchone()
+    if result:
         return True
     else:
         return False
