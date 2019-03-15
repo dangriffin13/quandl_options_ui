@@ -9,6 +9,11 @@ else:
     print('Connection unsuccessful')
 
 
+def reconnect_to_db():
+    conn = psycopg2.connect(user='danielgriffin', password='', 
+                        database='quandl_ui', host='localhost')
+
+
 def test_insert():
     sql = '''INSERT INTO dataset_master
             (database_name, database_code, dataset_name, dataset_code, quandl_dataset_id, dataset_description) 
@@ -41,35 +46,40 @@ def create_dataset_master_table():
     conn.close()
 
 
-def create_chris_dataset(): #need to add chris to dataset_master
+def create_db_to_dataset_mapping_table():
+    pass
+
+
+def create_chris_dataset(): 
     chris_metadata = ('Wiki Continuous Futures', 'CHRIS', 
         'WTI Crude Futures, Continuous Contract', 'ICE_T1', 11272034,
         'Historical Futures Prices: WTI Crude Futures, Continuous Contract #1. Non-adjusted price based on spot-month continuous contract calculations. Raw data from ICE.'
         )
 
-    add_chris_to_master_sql = '''INSERT INTO dataset_master
+    #need to add chris to dataset_master so that there's a foreign key
+    sql_add_chris_to_master = '''INSERT INTO dataset_master
             (database_name, database_code, dataset_name, dataset_code, quandl_dataset_id, dataset_description) 
             values (%s, %s, %s, %s, %s, %s);
             '''
 
     with conn.cursor() as cursor:
-        cursor.execute(add_chris_to_master_sql, chris_metadata)
+        cursor.execute(sql_add_chris_to_master, chris_metadata)
 
-    create_chris_table_sql = '''CREATE TABLE chris
-            (
-                id bigserial PRIMARY KEY,
-                dataset_master_id integer REFERENCES dataset_master (id),
-                "date" date,
-                open numeric,
-                high numeric,
-                low numeric,
-                last numeric,
-                volume integer,
-                open_interest integer
-            )'''
+    sql_create_chris_table = '''CREATE TABLE chris
+                (
+                    id bigserial PRIMARY KEY,
+                    dataset_master_id integer REFERENCES dataset_master (id),
+                    "date" date,
+                    open numeric,
+                    high numeric,
+                    low numeric,
+                    last numeric,
+                    volume integer,
+                    open_interest integer
+                )'''
 
     with conn.cursor() as cursor:
-        cursor.execute(create_chris_table_sql)
+        cursor.execute(sql_create_chris_table)
 
     print('cursor executed')
     conn.commit()
@@ -77,12 +87,33 @@ def create_chris_dataset(): #need to add chris to dataset_master
 
 
 
-def disconnect_all_db_sessions(database): #need to insert database as variable in SQL
+def chris_add_data(quandl_dataset_id, df):
+    sql = '''INSERT INTO chris 
+            values
+            (%(date)s, %(dataset_master_id)s, %(open)s, %(high)s,
+            %(low)s, %(last)s, %(volume)s, %(open_interest)s
+            )'''
+
+    cols = df.columns.tolist()
+
+    with conn.cursor() as cursor:
+        for row in df:
+            values = {k:v for (k, v) in zip(cols, row)}
+            cursor.execute(sql, tuple(values))
+
+    conn.commit()
+    conn.close()
+
+
+
+def disconnect_all_db_sessions(database):
+    db_string = database + '()'
+
     sql = '''SELECT pg_terminate_backend(pg_stat_activity.pid)
                 FROM pg_stat_activity
-                WHERE datname = ?()
+                WHERE datname = %s #database name
                 AND pid <> pg_backend_pid();
-            '''
+            ''' % (db_string)
 
 
 
@@ -139,7 +170,6 @@ def insert_security_dataset(data):
         dataset_master_id integer foreign key
         )
         """
-#need to figure out how to splat out column names
 
 
 
@@ -150,11 +180,12 @@ class QuandlDatabase:
 class QuandlDataset:
     
     def __init__(self, database_name, database_code, dataset_name, 
-                dataset_code, dataset_description, data=None):
+                dataset_code, quandl_dataset_id, dataset_description, data=None):
         self.database_name = database_name
         self.database_code = database_code
         self.dataset_name = dataset_name
         self.dataset_code = dataset_code
+        self.quandl_dataset_id = quandl_dataset_id
         self.dataset_description = dataset_description
         self.data = data
 
