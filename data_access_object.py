@@ -98,7 +98,7 @@ def chris_add_data(quandl_dataset_id, df):
 
     with conn.cursor() as cursor:
         for row in df:
-            values = {k:v for (k, v) in zip(cols, row)}
+            values = {k:v for (k, v) in zip(cols, row)}  #concern about order matching between cols and row vals
             cursor.execute(sql, tuple(values))
 
     conn.commit()
@@ -157,11 +157,26 @@ def check_dataset_master_for_dataset(data):
 def check_dataset_master_for_database(data):
     sql = """SELECT data.database_code FROM dataset_master;"""
 
-    if sql_output == data.database_code:
+
+    with conn.cursor() as cursor:
+        cursor.execute(sql, tup)
+        result = cursor.fetchone()
+
+    if result == data.database_code:
         return True
     else:
         return False
 
+
+def fetchone_result(sql, data=None):
+    with conn.cursor() as cursor:
+        if data:
+            cursor.execute(sql, data)
+        else:
+            cursor.execute(sql)
+        result = cursor.fetchone()
+
+    return result
 
 def insert_security_dataset(data):
     sql = """INSERT INTO security_time_series
@@ -175,6 +190,7 @@ def insert_security_dataset(data):
 
 class QuandlDatabase:
     pass
+
 
 
 class QuandlDataset:
@@ -194,4 +210,4 @@ class ResultSet:
     pass
 
 
-seed = QuandlDataset('Seed', '1234', 'Test', '5678', 'Initializing Dataset Master Table')
+seed = QuandlDataset('Seed', '1234', 'Test', '5678', -1, 'Initializing Dataset Master Table')
