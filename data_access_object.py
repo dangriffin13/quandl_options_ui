@@ -46,6 +46,8 @@ def create_dataset_master_table():
     conn.close()
 
 
+
+#need a table to map the database to dataset hierarchy
 def create_db_to_dataset_mapping_table():
     pass
 
@@ -73,7 +75,7 @@ def create_chris_dataset():
                     open numeric,
                     high numeric,
                     low numeric,
-                    last numeric,
+                    settle numeric,
                     volume integer,
                     open_interest integer
                 )'''
@@ -94,12 +96,20 @@ def chris_add_data(quandl_dataset_id, df):
             %(low)s, %(last)s, %(volume)s, %(open_interest)s
             )'''
 
-    cols = df.columns.tolist()
+    #include dataset master id in df
+    #swap prev. day open interest for open_interest as col name in df
+
+    cols = ['date', 'dataset_master_id', 'open', 'high', 'low', 
+            'settle', 'volume', 'open_interest']
+
+    #cols = df.columns.tolist()
 
     with conn.cursor() as cursor:
-        for row in df:
-            values = {k:v for (k, v) in zip(cols, row)}  #concern about order matching between cols and row vals
-            cursor.execute(sql, tuple(values))
+        for row in df.iterrows():  #iterrows return a numpy series, therefore
+            dat = row[1].to_dict() #we need to take index 1 of the series
+            lowered_keys = {k.lower():v for k,v in dat.items()}
+            values = {k: lowered_keys[k] for k in cols}
+            cursor.execute(sql, values)
 
     conn.commit()
     conn.close()
