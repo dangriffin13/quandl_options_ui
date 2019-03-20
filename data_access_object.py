@@ -1,4 +1,5 @@
 import psycopg2
+import pandas as pd
 
 conn = psycopg2.connect(user='danielgriffin', password='', 
                         database='quandl_ui', host='localhost')
@@ -90,25 +91,27 @@ def create_chris_dataset():
 
 
 def chris_add_data(quandl_dataset_id, df):
+
+    #id column is not autoincrementing, query is attempting to put date into id
     sql = '''INSERT INTO chris 
             values
             (%(date)s, %(dataset_master_id)s, %(open)s, %(high)s,
-            %(low)s, %(last)s, %(volume)s, %(open_interest)s
+            %(low)s, %(settle)s, %(volume)s, %(open_interest)s
             )'''
 
-    #include dataset master id in df
-    #swap prev. day open interest for open_interest as col name in df
+    df['dataset_master_id'] = quandl_dataset_id
+    df.rename(str.lower, axis='columns', inplace=True)
+    df.rename(columns={'prev. day open interest':'open_interest'}, inplace=True)
+    df['date'] = pd.to_datetime(df['date'])
 
     cols = ['date', 'dataset_master_id', 'open', 'high', 'low', 
             'settle', 'volume', 'open_interest']
 
-    #cols = df.columns.tolist()
 
     with conn.cursor() as cursor:
-        for row in df.iterrows():  #iterrows return a numpy series, therefore
+        for row in df.iterrows():  #iterrows returns a numpy series, therefore
             dat = row[1].to_dict() #we need to take index 1 of the series
-            lowered_keys = {k.lower():v for k,v in dat.items()}
-            values = {k: lowered_keys[k] for k in cols}
+            values = {k: dat[k] for k in cols}
             cursor.execute(sql, values)
 
     conn.commit()
