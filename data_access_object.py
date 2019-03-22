@@ -99,6 +99,8 @@ def chris_add_data(quandl_dataset_id, df):
             %(low)s, %(settle)s, %(volume)s, %(open_interest)s
             )'''
 
+
+    #this should be separated from the sql operations into other methods
     df['dataset_master_id'] = quandl_dataset_id
     df.rename(str.lower, axis='columns', inplace=True)
     df.rename(columns={'prev. day open interest':'open_interest'}, inplace=True)
