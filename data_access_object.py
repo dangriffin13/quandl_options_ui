@@ -99,12 +99,21 @@ def alter_column_to_text(table, column):
     conn.commit()
     conn.close()
 
+
 def get_dataset_master_id(dataset_code):
     sql = '''SELECT id
-            FROM dataset_master_id
-            WHERE dataset_code = %s''' % dataset_code
+            FROM dataset_master
+            WHERE dataset_code = %s'''
+    
+    if not isinstance(dataset_code, tuple):
+        dataset_code = (dataset_code,)
+    
 
-    return fetchone_result(sql)
+    with conn.cursor() as cursor:
+        cursor.execute(sql, dataset_code) 
+        return cursor.fetchone()[0]
+
+    
 
 
 
@@ -120,7 +129,7 @@ def chris_add_data(quandl_dataset_id, df):
 
 
     #this should be separated from the sql operations into other methods
-    df['dataset_master_id'] = str(quandl_dataset_id)
+    df['dataset_master_id'] = get_dataset_master_id('ICE_T1')
     df.rename(str.lower, axis='columns', inplace=True)
     df.rename(columns={'prev. day open interest':'open_interest'}, inplace=True)
     df['date'] = pd.to_datetime(df['date'])
@@ -193,7 +202,7 @@ def check_dataset_master_for_database(data):
 
 
     with conn.cursor() as cursor:
-        cursor.execute(sql, tup)
+        cursor.execute(sql)
         result = cursor.fetchone()
 
     if result == data.database_code:
