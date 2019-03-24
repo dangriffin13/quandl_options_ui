@@ -69,7 +69,7 @@ def sort_df_by_date(df):
     return df.sort_values(by='Date')    
 
 def http_status_check(response):
-    if response.status_code ==200:
+    if response.status_code == 200:
         print('Call successful')
     else:
         print(response.status_code)
@@ -80,3 +80,4 @@ if __name__ == '__main__':
     dat = quandl_api_start_date('CHRIS','ICE_T1','2019-01-02')
     df = quandl_to_df(dat)
     icet1_meta = quandl_dataset_code_metadata_call('CHRIS','ICE_T1')
+    icet1_id = icet1_meta['dataset']['id']
