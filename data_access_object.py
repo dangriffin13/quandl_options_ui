@@ -89,11 +89,30 @@ def create_chris_dataset():
     conn.close()
 
 
+def alter_column_to_text(table, column):
+    sql = '''ALTER TABLE %s ALTER COLUMN %s TYPE text''' % (table, column)
+
+    with conn.cursor() as cursor:
+        cursor.execute(sql)
+
+    print('cursor executed')
+    conn.commit()
+    conn.close()
+
+def get_dataset_master_id(dataset_code):
+    sql = '''SELECT id
+            FROM dataset_master_id
+            WHERE dataset_code = %s''' % dataset_code
+
+    return fetchone_result(sql)
+
+
 
 def chris_add_data(quandl_dataset_id, df):
 
     #id column is not autoincrementing, query is attempting to put date into id
-    sql = '''INSERT INTO chris 
+    sql = '''INSERT INTO chris ("date" ,dataset_master_id, open, high, low,
+            settle, volume, open_interest)
             values
             (%(date)s, %(dataset_master_id)s, %(open)s, %(high)s,
             %(low)s, %(settle)s, %(volume)s, %(open_interest)s
@@ -101,7 +120,7 @@ def chris_add_data(quandl_dataset_id, df):
 
 
     #this should be separated from the sql operations into other methods
-    df['dataset_master_id'] = quandl_dataset_id
+    df['dataset_master_id'] = str(quandl_dataset_id)
     df.rename(str.lower, axis='columns', inplace=True)
     df.rename(columns={'prev. day open interest':'open_interest'}, inplace=True)
     df['date'] = pd.to_datetime(df['date'])
