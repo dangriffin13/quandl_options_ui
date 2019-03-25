@@ -89,13 +89,12 @@ def create_chris_dataset():
     conn.close()
 
 
-def alter_column_to_text(table, column):
-    sql = '''ALTER TABLE %s ALTER COLUMN %s TYPE text''' % (table, column)
+def alter_column_to_text(tbl, column):
+    sql = '''ALTER TABLE %s ALTER COLUMN %s TYPE text''' % (tbl, column)
 
     with conn.cursor() as cursor:
         cursor.execute(sql)
 
-    print('cursor executed')
     conn.commit()
     conn.close()
 
@@ -114,7 +113,21 @@ def get_dataset_master_id(dataset_code):
         return cursor.fetchone()[0]
 
     
+def get_column_names(tbl_name):
+    sql = '''SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = %s'''
 
+    tbl_name = check_for_tuple(tbl_name)
+
+    with conn.cursor() as cursor:
+        cursor.execute(sql, tbl_name)
+
+
+def check_for_tuple(dat):
+    if not isinstance(dat, tuple):
+        dat = (dat,)
+    return dat
 
 
 def chris_add_data(quandl_dataset_id, df):
@@ -191,6 +204,7 @@ def check_dataset_master_for_dataset(data):
     with conn.cursor() as cursor: #do i need to reopen connection?
         cursor.execute(sql, tup) #this is sqlite syntax, needs review
         result = cursor.fetchone()
+
     if result:
         return True
     else:
@@ -220,6 +234,9 @@ def fetchone_result(sql, data=None):
         result = cursor.fetchone()
 
     return result
+
+
+
 
 def insert_security_dataset(data):
     sql = """INSERT INTO security_time_series
