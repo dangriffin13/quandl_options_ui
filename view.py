@@ -21,6 +21,8 @@ def view_list_of_database():
             Enter the database code to view more info.')
     selection = input()
 
+    return selection
+
 
 def view_list_of_databases_by_category():
     pass
